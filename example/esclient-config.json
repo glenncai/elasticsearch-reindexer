@@ -1,0 +1,12 @@
+{
+	"esClientOptions": {
+		"host": "localhost:9200",
+		"log": "error",
+		"auth": {
+			"username": "",
+			"password": ""
+		}
+	},
+	"ping": 30000,
+	"activeQueueTasks": 4
+}
