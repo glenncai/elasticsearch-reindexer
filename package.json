@@ -1,16 +1,21 @@
 {
   "name": "elasticsearch-reindexer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Automatically reindex in elasticsearch like a charm!",
+  "keywords": [
+    "elasticsearch",
+    "reindex",
+    "reindexing",
+    "reindexer",
+    "reindexing tool",
+    "reindexing tool for elasticsearch"
+  ],
   "main": "./src/index.js",
   "author": "Glenn Cai",
   "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/glenncai/elasticsearch-reindexer.git"
-  },
-  "scripts": {
-    "build": "rollup -c"
   },
   "dependencies": {
     "elasticsearch": "^16.7.3"
