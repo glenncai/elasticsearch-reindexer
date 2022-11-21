@@ -14,11 +14,11 @@ let endTime = null;
  * @returns {Promise<void>}
  */
 const reindexer = async ({
-													 newIndexName,
-													 oriIndexName,
-													 indexDetailsFile,
-													 esConfigFile
-												 }) => {
+	newIndexName,
+	oriIndexName,
+	indexDetailsFile,
+	esConfigFile,
+}) => {
 	if (
 		typeof newIndexName !== 'string' ||
 		typeof oriIndexName !== 'string' ||
@@ -34,7 +34,7 @@ const reindexer = async ({
 
 	localhostEsClient.ping(
 		{
-			requestTimeout: esConfigFile.ping
+			requestTimeout: esConfigFile.ping,
 		},
 		(error) => {
 			if (error) {
@@ -48,7 +48,7 @@ const reindexer = async ({
 	const taskId = await reIndex({
 		newIndexName,
 		oriIndexName,
-		localhostEsClient
+		localhostEsClient,
 	});
 	intervalId = setInterval(() => {
 		checkTask({ taskId, newIndexName, oriIndexName, localhostEsClient });
@@ -61,111 +61,111 @@ const createIndex = async ({ newIndexName, data, localhostEsClient }) => {
 	}
 
 	await localhostEsClient.indices
-	.create({
-		index: newIndexName,
-		includeTypeName: true,
-		body: data
-	})
-	.catch(async (error) => {
-		await deleteNewIndex({ newIndexName, localhostEsClient });
-		console.log(error);
-		throw new Error('There are some errors in createIndex function.');
-	});
+		.create({
+			index: newIndexName,
+			includeTypeName: true,
+			body: data,
+		})
+		.catch(async (error) => {
+			await deleteNewIndex({ newIndexName, localhostEsClient });
+			console.log(error);
+			throw new Error('There are some errors in createIndex function.');
+		});
 };
 
 const reIndex = ({ newIndexName, oriIndexName, localhostEsClient }) => {
 	return new Promise((resolve, reject) => {
 		localhostEsClient
-		.reindex({
-			waitForCompletion: false, // Prevent timeout error
-			body: {
-				conflicts: 'proceed',
-				source: {
-					index: oriIndexName
+			.reindex({
+				waitForCompletion: false, // Prevent timeout error
+				body: {
+					conflicts: 'proceed',
+					source: {
+						index: oriIndexName,
+					},
+					dest: {
+						index: newIndexName,
+					},
 				},
-				dest: {
-					index: newIndexName
-				}
-			}
-		})
-		.then((res) => {
-			const taskId = res.task;
-			resolve(taskId);
-		})
-		.catch(async (error) => {
-			await deleteNewIndex({ newIndexName, localhostEsClient });
-			console.log(error);
-			reject(new Error('There are some errors in reIndex function.'));
-		});
+			})
+			.then((res) => {
+				const taskId = res.task;
+				resolve(taskId);
+			})
+			.catch(async (error) => {
+				await deleteNewIndex({ newIndexName, localhostEsClient });
+				console.log(error);
+				reject(new Error('There are some errors in reIndex function.'));
+			});
 	});
 };
 
 const checkTask = ({
-										 taskId,
-										 newIndexName,
-										 oriIndexName,
-										 localhostEsClient
-									 }) => {
+	taskId,
+	newIndexName,
+	oriIndexName,
+	localhostEsClient,
+}) => {
 	return new Promise((resolve, reject) => {
 		localhostEsClient.tasks
-		.get({
-			taskId: taskId,
-			waitForCompletion: false
-		})
-		.then(async (res) => {
-			console.log(res);
-			if (res.completed) {
-				await clearInterval(intervalId);
-				await deleteOriIndex({ oriIndexName, localhostEsClient });
-				console.log('Reindex Done :)');
-				endTime = performance.now();
-				console.log(
-					`Reindex took ${((endTime - startTime) / 1000) % 60} seconds`
-				);
-				resolve();
-			}
-		})
-		.catch(async (error) => {
-			await deleteNewIndex({ newIndexName, localhostEsClient });
-			console.log(error);
-			reject(new Error('There are some errors in checkTask function.'));
-		});
+			.get({
+				taskId: taskId,
+				waitForCompletion: false,
+			})
+			.then(async (res) => {
+				console.log(res);
+				if (res.completed) {
+					await clearInterval(intervalId);
+					await deleteOriIndex({ oriIndexName, localhostEsClient });
+					console.log('Reindex Done :)');
+					endTime = performance.now();
+					console.log(
+						`Reindex took ${((endTime - startTime) / 1000) % 60} seconds`
+					);
+					resolve();
+				}
+			})
+			.catch(async (error) => {
+				await deleteNewIndex({ newIndexName, localhostEsClient });
+				console.log(error);
+				reject(new Error('There are some errors in checkTask function.'));
+			});
 	});
 };
 
 const deleteNewIndex = ({ newIndexName, localhostEsClient }) => {
 	return new Promise((resolve, reject) => {
 		localhostEsClient.indices
-		.delete({
-			index: newIndexName
-		})
-		.then(() => {
-			console.log(
-				'Falling back... The uncompleted new index has been removed.'
-			);
-			resolve();
-		})
-		.catch((error) => {
-			console.log(error);
-			reject(new Error('There are some errors in deleteNewIndex function.'));
-		});
+			.delete({
+				index: newIndexName,
+			})
+			.then(() => {
+				console.log(
+					'Falling back... The uncompleted new index has been removed.'
+				);
+				resolve();
+			})
+			.catch((error) => {
+				console.log(error);
+				reject(new Error('There are some errors in deleteNewIndex function.'));
+			});
 	});
 };
 
 const deleteOriIndex = ({ oriIndexName, localhostEsClient }) => {
 	return new Promise((resolve, reject) => {
 		localhostEsClient.indices
-		.delete({
-			index: oriIndexName
-		})
-		.then(() => {
-			console.log('Delete original index successfully!');
-			resolve();
-		})
-		.catch((error) => {
-			console.log(error);
-			reject(new Error('There are some errors in deleteOriIndex function.'));
-		});
+			.delete({
+				index: oriIndexName,
+			})
+			.then(() => {
+				console.log('Delete original index successfully!');
+				resolve();
+			})
+			.catch((error) => {
+				console.log(error);
+				reject(new Error('There are some errors in deleteOriIndex function.'));
+			});
 	});
 };
 
