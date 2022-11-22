@@ -1,5 +1,7 @@
 'use strict';
 
+const { performance } = require('perf_hooks');
+
 let intervalId = null;
 let startTime = null;
 let endTime = null;
