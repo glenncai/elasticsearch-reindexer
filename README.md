@@ -90,4 +90,4 @@ When use `reindexer` you can configure the following options via the parameter.
 | `newIndexName`     | string | None    | The new index name.                         |
 | `oriIndexName`     | string | None    | The original index name (old index name).   |
 | `indexDetailsFile` | string | None    | Index details like `mapping` and `setting`. |
-| `esConfigFile`   | string | None    | Elasticsearch configuration.                |
+| `esConfigFile`     | string | None    | Elasticsearch configuration.                |
